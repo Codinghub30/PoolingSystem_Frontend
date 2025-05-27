@@ -1,0 +1,115 @@
+.teacher-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 40px 20px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.badge {
+  display: inline-block;
+  background-color: #7f4bf5;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.top-section label,
+.options-section label {
+  font-weight: 600;
+  display: block;
+  margin: 20px 0 10px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: none;
+  border: none;
+  background-color: #f2f2f2;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+.question-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+select {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.options-section {
+  margin-top: 20px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.option-number {
+  width: 20px;
+  height: 20px;
+  background: #7f4bf5;
+  color: white;
+  text-align: center;
+  border-radius: 50%;
+  line-height: 20px;
+  font-size: 12px;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background-color: #f2f2f2;
+  border-radius: 6px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.add-option-btn {
+  background: none;
+  border: 1px solid #7f4bf5;
+  color: #7f4bf5;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.ask-btn {
+  margin-top: 40px;
+  background: linear-gradient(to right, #7f4bf5, #6677ff);
+  color: white;
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
