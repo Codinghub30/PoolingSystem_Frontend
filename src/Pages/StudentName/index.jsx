@@ -1,22 +1,47 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/apiConfig";
 import "./styles.css";
 
 const StudentName = () => {
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const existingName = sessionStorage.getItem("studentName");
-    if (existingName) {
-      navigate("/student-waiting-room");
+  function generateSessionId() {
+    let id = sessionStorage.getItem("sessionId");
+    if (!id) {
+      id = Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem("sessionId", id);
     }
-  }, [navigate]);
+    return id;
+  }
 
-  const handleContinue = () => {
-    if (!name.trim()) return;
-    sessionStorage.setItem("studentName", name);
-    navigate("/student-waiting-room");
+  const handleSubmit = async () => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+
+    try {
+      const sessionId = generateSessionId();
+      const payload = { sessionId, studentName: trimmedName };
+      await axiosInstance.post("/student/add", payload);
+      sessionStorage.setItem("studentName", trimmedName);
+      navigate("/poll-student-current");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to register student");
+    }
+  };
+
+  // useEffect(() => {
+  //   const existingName = sessionStorage.getItem("studentName");
+  //   if (existingName) {
+  //     navigate("/student-waiting-room");
+  //   }
+  // }, [navigate]);
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && name.trim()) {
+      handleSubmit();
+    }
   };
 
   return (
@@ -39,12 +64,13 @@ const StudentName = () => {
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        onKeyPress={handleKeyPress}
         className="input-box"
         placeholder="Your name"
       />
 
       <button
-        onClick={handleContinue}
+        onClick={handleSubmit}
         className="continue-btn"
         disabled={!name.trim()}
       >

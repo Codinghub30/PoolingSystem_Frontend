@@ -1,5 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axiosInstance from "../../api/apiConfig";
+import { useNavigate } from "react-router-dom";
 import "./styles.css";
+import { io } from "socket.io-client";
+import Chats from "../../components/Chats";
+
+const SOCKET_SERVER_URL = "http://localhost:9000";
 
 const PollResultWithChats = () => {
   const [chatOpen, setChatOpen] = useState(false);
@@ -19,6 +25,9 @@ const PollResultWithChats = () => {
     },
   ]);
   const [inputMsg, setInputMsg] = useState("");
+  const [poll, setPoll] = useState(null);
+  const navigate = useNavigate();
+  const socketRef = useRef();
 
   const toggleChat = () => setChatOpen(!chatOpen);
 
@@ -36,32 +45,90 @@ const PollResultWithChats = () => {
     setInputMsg("");
   };
 
+  useEffect(() => {
+    const fetchPoll = async () => {
+      try {
+        const response = await axiosInstance.get("/poll/get-current-poll");
+        setPoll(response.data);
+      } catch (error) {
+        console.error("Error fetching poll:", error);
+      }
+    };
+
+    fetchPoll();
+    socketRef.current = io(SOCKET_SERVER_URL);
+
+    // Listen for vote updates
+    socketRef.current.on("vote-updated", (updatedPoll) => {
+      console.log("Received vote update:", updatedPoll);
+      setPoll(updatedPoll);
+    });
+
+    // Optional: listen for new question as well
+    socketRef.current.on("new-question", (newPoll) => {
+      console.log("Received new question:", newPoll);
+      setPoll(newPoll);
+    });
+
+    // Cleanup socket on unmount
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
   return (
     <div className="poll-result-container">
-      <h3>Question</h3>
-      <div className="question-box">
-        Which planet is known as the Red Planet?"
-        <div className="option-row">
-          <span className="option-number">1</span>
-          <div className="option-bar filled">Mars</div>
-        </div>
-        <div className="option-row">
-          <span className="option-number">2</span>
-          <div className="option-bar">Venus</div>
-        </div>
-        <div className="option-row">
-          <span className="option-number">3</span>
-          <div className="option-bar">Jupiter</div>
-        </div>
-        <div className="option-row">
-          <span className="option-number">4</span>
-          <div className="option-bar half-filled">Saturn</div>
-        </div>
-      </div>
+      <button
+        className="view-poll-history-btn"
+        onClick={() => navigate("/poll-history")}
+      >
+        👁️ View Poll history
+      </button>
 
+      <h3 className="poll-title">Question</h3>
+      {!poll ? (
+        <p>Loading poll...</p>
+      ) : (
+        <div className="question-box">
+          <div className="question-header">{poll.question}</div>
+          {poll.options.map((option, idx) => {
+            const totalVotes = poll.options.reduce(
+              (sum, o) => sum + (o.votes || 0),
+              0
+            );
+            const votePercent =
+              totalVotes > 0
+                ? Math.round((option.votes / totalVotes) * 100)
+                : 0;
+
+            return (
+              <div className="option-row" key={option._id}>
+                <button
+                  className="option-btn"
+                  style={{
+                    background: `linear-gradient(to right, #6c63ff ${votePercent}%, #f0f0f0 ${votePercent}%)`,
+                    borderRadius: "0.8rem",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span className="option-num">{idx + 1}</span> {option.text}
+                    <span className="vote-percent">{votePercent}%</span>
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
       <button className="ask-new-btn">+ Ask a new question</button>
 
-      <div className={`chat-popup ${chatOpen ? "open" : ""}`}>
+      {/* <div className={`chat-popup ${chatOpen ? "open" : ""}`}>
         <div className="chat-header">
           <button
             className={activeTab === "chat" ? "active" : ""}
@@ -98,7 +165,6 @@ const PollResultWithChats = () => {
 
         {activeTab === "participants" && (
           <div className="participants-list">
-            {/* Add participants list here */}
             <p>Participants will be shown here.</p>
           </div>
         )}
@@ -113,8 +179,8 @@ const PollResultWithChats = () => {
           />
           <button onClick={sendMessage}>Send</button>
         </div>
-      </div>
-
+      </div> */}
+      {chatOpen && <Chats onClose={toggleChat} />}
       <button className="chat-toggle-btn" onClick={toggleChat}>
         💬
       </button>

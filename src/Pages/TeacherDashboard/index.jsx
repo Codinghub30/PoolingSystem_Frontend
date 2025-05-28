@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./style.css";
+import axiosInstance from "../../api/apiConfig";
+import { useNavigate } from "react-router-dom";
 
 const TeacherDashboard = () => {
   const [question, setQuestion] = useState("");
@@ -8,6 +10,7 @@ const TeacherDashboard = () => {
     { text: "", isCorrect: false },
   ]);
   const [timer, setTimer] = useState(60);
+  const navigate = useNavigate();
 
   const handleOptionChange = (index, value) => {
     let newOptions = [...options];
@@ -25,13 +28,43 @@ const TeacherDashboard = () => {
     setOptions([...options, { text: "", isCorrect: false }]);
   };
 
-  const handleAskQuestion = () => {
+  const handleAskQuestion = async () => {
+    console.log("the timerrr step 1", timer);
+
     const payload = {
       question,
       options,
-      timer,
+      duration: timer,
     };
-    console.log("Question Sent:", payload);
+
+    try {
+      const response = await axiosInstance.post("/poll/create", payload);
+
+      navigate("/poll-result");
+      alert("Poll created successfully!");
+
+      // Reset form after success
+      setQuestion("");
+      setOptions([
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
+      ]);
+      setTimer(60);
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        alert(
+          `Error: ${error.response.data.message || "Failed to create poll"}`
+        );
+      } else if (error.request) {
+        // Request was made but no response received
+        alert("Network error: No response from server.");
+      } else {
+        // Something else happened
+        alert(`Error: ${error.message}`);
+      }
+      console.error("Create poll error:", error);
+    }
   };
 
   return (
