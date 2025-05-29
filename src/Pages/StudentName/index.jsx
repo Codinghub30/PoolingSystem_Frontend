@@ -23,8 +23,18 @@ const StudentName = () => {
     try {
       const sessionId = generateSessionId();
       const payload = { sessionId, studentName: trimmedName };
-      await axiosInstance.post("/student/add", payload);
+
+      const response = await axiosInstance.post("/student/add", payload);
+      // Assuming response.data contains the created student object, e.g. { _id: "...", ... }
+      const createdStudent = response.data;
+
+      // Store backend-generated student ID (important for kick-out detection)
+      sessionStorage.setItem(
+        "studentId",
+        createdStudent._id || createdStudent.sessionId || sessionId
+      );
       sessionStorage.setItem("studentName", trimmedName);
+
       navigate("/poll-student-current");
     } catch (error) {
       alert(error.response?.data?.message || "Failed to register student");

@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/apiConfig";
 
-const participantsData = [
-  { id: 1, name: "Rahul Arora" },
-  { id: 2, name: "Pushpender Rautela" },
-  { id: 3, name: "Rijul Zalpuri" },
-  { id: 4, name: "Nadeem N" },
-  { id: 5, name: "Ashwin Sharma" },
-];
-
 const chatMessagesData = [
   {
     id: 1,
@@ -28,15 +20,14 @@ const Chats = () => {
   const [activeTab, setActiveTab] = useState("chat");
   const [participants, setParticipants] = useState([]);
   const [loadingParticipants, setLoadingParticipants] = useState(true);
+  const [showModal, setShowModal] = useState(true); // Control modal visibility
   const role = sessionStorage.getItem("role");
 
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
         setLoadingParticipants(true);
-        const response = await axiosInstance.get("/student/get-students"); // Replace with your actual API URL
-
-        // Assuming data is an array of participants with id, name, and role
+        const response = await axiosInstance.get("/student/get-students");
         setParticipants(response.data);
       } catch (err) {
         console.error(err);
@@ -54,8 +45,11 @@ const Chats = () => {
     }
     try {
       await axiosInstance.delete(`/student/kickout-students/${studentId}`);
-      // Remove the kicked student from local state
       setParticipants((prev) => prev.filter((p) => p._id !== studentId));
+      sessionStorage.removeItem("studentId");
+      sessionStorage.removeItem("studentName");
+      // optionally also clear sessionId or other keys if any
+
       alert("Student kicked out successfully");
     } catch (error) {
       console.error("Failed to kick out student:", error);
@@ -63,9 +57,14 @@ const Chats = () => {
     }
   };
 
+  if (!showModal) return null; // Don't render modal if hidden
+
   return (
     <>
-      <div className="modal-overlay" />
+      <div
+        className="modal-overlay"
+        onClick={() => setShowModal(false)} // close on overlay click
+      />
       <div
         className="modal-container"
         role="dialog"
@@ -81,7 +80,7 @@ const Chats = () => {
             aria-controls="tab-chat"
             id="tab-chat-button"
           >
-            Chat
+            <strong>Chat</strong>
           </button>
           <button
             className={`tab-button ${
@@ -113,13 +112,8 @@ const Chats = () => {
                       msg.incoming ? "incoming" : "outgoing"
                     }`}
                   >
-                    {!msg.incoming && (
-                      <span className="chat-sender">{msg.sender}</span>
-                    )}
+                    <span className="chat-sender">{msg.sender}</span>
                     <div className="chat-bubble">{msg.text}</div>
-                    {msg.incoming && (
-                      <span className="chat-sender">{msg.sender}</span>
-                    )}
                   </div>
                 ))}
               </div>
@@ -177,7 +171,7 @@ const Chats = () => {
         .modal-container {
           position: fixed;
           right: 3rem;
-          width: 320px;
+          width: 370px;
           background: white;
           border-radius: 8px;
           box-shadow: 0 6px 16px rgb(0 0 0 / 0.15);
@@ -188,6 +182,26 @@ const Chats = () => {
           font-size: 14px;
           user-select: none;
           bottom: 7rem;
+          height: 380px;
+          padding: 0 0 12px 0;
+          overflow: hidden;
+        }
+        .modal-close-button {
+          position: absolute;
+          top: 8px;
+          right: 12px;
+          background: none;
+          border: none;
+          font-size: 22px;
+          font-weight: 700;
+          cursor: pointer;
+          color: #555;
+          line-height: 1;
+          user-select: none;
+          z-index: 1200;
+        }
+        .modal-close-button:hover {
+          color: #000;
         }
         .tabs-header {
           display: flex;
@@ -200,7 +214,7 @@ const Chats = () => {
           border: none;
           border-bottom: 3px solid transparent;
           cursor: pointer;
-          font-weight: 600;
+          font-weight: 400;
           font-size: 15px;
           color: #333;
           outline-offset: 2px;
@@ -208,6 +222,7 @@ const Chats = () => {
         }
         .tab-button.active {
           border-bottom: 3px solid #7b6ef6; /* purple */
+          font-weight: 600;
           color: #333;
         }
         .tab-button:hover:not(.active) {
@@ -218,35 +233,37 @@ const Chats = () => {
           overflow-y: auto;
           max-height: 300px;
         }
+
         /* Chat styling */
         .chat-messages {
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 18px;
         }
         .chat-message {
-          max-width: 70%;
+          max-width: 75%;
           display: flex;
-          align-items: center;
-          gap: 8px;
+          flex-direction: column;
+          gap: 4px;
+          font-size: 14px;
+          user-select: text;
         }
         .chat-message.incoming {
-          flex-direction: row;
-          justify-content: flex-start;
+          align-self: flex-start;
         }
         .chat-message.outgoing {
-          flex-direction: row-reverse;
-          justify-content: flex-end;
-          margin-left: auto;
+          align-self: flex-end;
+          text-align: right;
         }
         .chat-bubble {
-          padding: 10px 14px;
+          padding: 10px 16px;
           border-radius: 12px;
-          font-size: 14px;
-          line-height: 1.2;
           max-width: 100%;
           word-wrap: break-word;
           box-shadow: 0 0 6px rgb(0 0 0 / 0.1);
+          font-size: 14px;
+          line-height: 1.3;
+          user-select: text;
         }
         .chat-message.incoming .chat-bubble {
           background-color: #333;
@@ -254,15 +271,16 @@ const Chats = () => {
           border-top-left-radius: 0;
         }
         .chat-message.outgoing .chat-bubble {
-          background-color: #7b6ef6;
+          background-color: #9e83ff; /* lighter purple */
           color: white;
           border-top-right-radius: 0;
         }
         .chat-sender {
           font-size: 12px;
           font-weight: 600;
-          color: #7b6ef6;
+          color: #5a33ff; /* bright purple */
           user-select: text;
+          user-drag: none;
         }
 
         /* Participants table */

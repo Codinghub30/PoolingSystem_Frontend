@@ -5,7 +5,8 @@ import "./styles.css"; // We'll add the new styles here too or you can keep in t
 import { io } from "socket.io-client";
 import Chats from "../../components/Chats";
 
-const SOCKET_SERVER_URL = "http://localhost:9000";
+// const SOCKET_SERVER_URL = "http://localhost:9000";
+const SOCKET_SERVER_URL = "https://poolingsystem-backend.onrender.com";
 
 const PollResultWithChats = () => {
   const [chatOpen, setChatOpen] = useState(false);

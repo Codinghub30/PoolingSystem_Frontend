@@ -4,7 +4,8 @@ import axiosInstance from "../../api/apiConfig";
 import { io } from "socket.io-client";
 import Chats from "../../components/Chats";
 
-const SOCKET_SERVER_URL = "http://localhost:9000";
+// const SOCKET_SERVER_URL = "http://localhost:9000";
+const SOCKET_SERVER_URL = "https://poolingsystem-backend.onrender.com";
 
 const STORAGE_SUBMITTED_KEY = "pollSubmitted";
 
@@ -25,22 +26,43 @@ const StudentQuestionPage = () => {
       const response = await axiosInstance.get("/poll/get-current-poll");
       const pollData = response.data;
 
+      if (!pollData) {
+        setPoll(null);
+        setTimer(0);
+        setSubmitted(false);
+        setSelected(null);
+        return;
+      }
+
       const now = new Date();
       const createdAt = new Date(pollData.createdAt);
       const duration = pollData.duration;
       const elapsed = Math.floor((now - createdAt) / 1000);
       const remaining = duration - elapsed;
 
-      setPoll(pollData);
-      setTimer(remaining > 0 ? remaining : 0);
+      if (remaining <= 0) {
+        // Poll is expired → treat as NO active poll for new student
+        setPoll(null);
+        setTimer(0);
+        setSubmitted(false);
+        setSelected(null);
+        return;
+      }
 
-      // Check if user has submitted previously (persisted)
+      // Poll is active
+      setPoll(pollData);
+      setTimer(remaining);
+
+      // Check if this student already submitted this poll before
       const storedSubmitted = sessionStorage.getItem(STORAGE_SUBMITTED_KEY);
       setSubmitted(storedSubmitted === "true");
-
       setSelected(null);
     } catch (error) {
       console.error("Failed to fetch poll:", error);
+      setPoll(null);
+      setTimer(0);
+      setSubmitted(false);
+      setSelected(null);
     }
   };
 
@@ -135,6 +157,7 @@ const StudentQuestionPage = () => {
   };
 
   if (!poll) {
+    // No active poll (expired or none created)
     return (
       <div className="waiting-container">
         <div className="badge">✨ Intervue Poll</div>
