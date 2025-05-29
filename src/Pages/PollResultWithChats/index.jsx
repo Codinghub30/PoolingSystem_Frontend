@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from "../../api/apiConfig";
 import { useNavigate } from "react-router-dom";
-import "./styles.css";
+import "./styles.css"; // We'll add the new styles here too or you can keep in this file
 import { io } from "socket.io-client";
 import Chats from "../../components/Chats";
 
@@ -60,130 +60,84 @@ const PollResultWithChats = () => {
 
     // Listen for vote updates
     socketRef.current.on("vote-updated", (updatedPoll) => {
-      console.log("Received vote update:", updatedPoll);
       setPoll(updatedPoll);
     });
 
-    // Optional: listen for new question as well
+    // Listen for new question
     socketRef.current.on("new-question", (newPoll) => {
-      console.log("Received new question:", newPoll);
       setPoll(newPoll);
     });
 
-    // Cleanup socket on unmount
     return () => {
       socketRef.current.disconnect();
     };
   }, []);
 
   return (
-    <div className="poll-result-container">
+    <div
+      style={{
+        marginTop: "2rem",
+        display: "flex",
+        alignItems: "end",
+        flexDirection: "column",
+      }}
+    >
       <button
         className="view-poll-history-btn"
+        style={{ position: "absolute", right: "5rem", top: "2rem" }}
         onClick={() => navigate("/poll-history")}
       >
         👁️ View Poll history
       </button>
+      <div className="poll-result-container">
+        <h3 className="poll-title">Question</h3>
+        {!poll ? (
+          <p>Loading poll...</p>
+        ) : (
+          <div className="question-box">
+            <div className="question-header">{poll.question}</div>
+            {poll.options.map((option, idx) => {
+              const totalVotes = poll.options.reduce(
+                (sum, o) => sum + (o.votes || 0),
+                0
+              );
+              const votePercent =
+                totalVotes > 0
+                  ? Math.round((option.votes / totalVotes) * 100)
+                  : 0;
 
-      <h3 className="poll-title">Question</h3>
-      {!poll ? (
-        <p>Loading poll...</p>
-      ) : (
-        <div className="question-box">
-          <div className="question-header">{poll.question}</div>
-          {poll.options.map((option, idx) => {
-            const totalVotes = poll.options.reduce(
-              (sum, o) => sum + (o.votes || 0),
-              0
-            );
-            const votePercent =
-              totalVotes > 0
-                ? Math.round((option.votes / totalVotes) * 100)
-                : 0;
+              // Determine if option is selected (has votes > 0)
+              const isSelected = votePercent > 0;
 
-            return (
-              <div className="option-row" key={option._id}>
-                <button
-                  className="option-btn"
-                  style={{
-                    background: `linear-gradient(to right, #6c63ff ${votePercent}%, #f0f0f0 ${votePercent}%)`,
-                    borderRadius: "0.8rem",
-                  }}
+              return (
+                <div
+                  key={option._id}
+                  className={`option-row ${isSelected ? "selected" : ""}`}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span className="option-num">{idx + 1}</span> {option.text}
-                    <span className="vote-percent">{votePercent}%</span>
+                  <div className="option-left">
+                    <div className="option-num">{idx + 1}</div>
+                    <div className="option-text">{option.text}</div>
                   </div>
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      <button className="ask-new-btn">+ Ask a new question</button>
-
-      {/* <div className={`chat-popup ${chatOpen ? "open" : ""}`}>
-        <div className="chat-header">
-          <button
-            className={activeTab === "chat" ? "active" : ""}
-            onClick={() => setActiveTab("chat")}
-          >
-            Chat
-          </button>
-          <button
-            className={activeTab === "participants" ? "active" : ""}
-            onClick={() => setActiveTab("participants")}
-          >
-            Participants
-          </button>
-          <button className="close-btn" onClick={toggleChat}>
-            &times;
-          </button>
-        </div>
-
-        {activeTab === "chat" && (
-          <div className="chat-messages">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`chat-message ${
-                  msg.incoming ? "incoming" : "outgoing"
-                }`}
-              >
-                <div className="sender">{msg.sender}</div>
-                <div className="text">{msg.text}</div>
-              </div>
-            ))}
+                  <div className="option-right">{votePercent}%</div>
+                </div>
+              );
+            })}
           </div>
         )}
 
-        {activeTab === "participants" && (
-          <div className="participants-list">
-            <p>Participants will be shown here.</p>
-          </div>
-        )}
+        <button
+          className="ask-new-btn"
+          style={{ marginRight: "-2rem" }}
+          onClick={() => navigate("/teacher-panel")}
+        >
+          + Ask a new question
+        </button>
 
-        <div className="chat-input-section">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={inputMsg}
-            onChange={(e) => setInputMsg(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
-      </div> */}
-      {chatOpen && <Chats onClose={toggleChat} />}
-      <button className="chat-toggle-btn" onClick={toggleChat}>
-        💬
-      </button>
+        {chatOpen && <Chats onClose={toggleChat} />}
+        <button className="chat-toggle-btn" onClick={toggleChat}>
+          💬
+        </button>
+      </div>
     </div>
   );
 };

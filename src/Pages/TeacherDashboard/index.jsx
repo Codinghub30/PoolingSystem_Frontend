@@ -79,24 +79,27 @@ const TeacherDashboard = () => {
       </p>
 
       <div className="top-section">
-        <label>Enter your question</label>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <label>Enter your question</label>
+          </div>
+          <div className="question-footer" style={{ marginBottom: "2rem" }}>
+            <select
+              value={timer}
+              onChange={(e) => setTimer(Number(e.target.value))}
+            >
+              <option value={30}>30 seconds</option>
+              <option value={60}>60 seconds</option>
+            </select>
+          </div>
+        </div>
         <textarea
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           maxLength={100}
           placeholder="Enter question..."
         />
-        <div className="question-footer">
-          <select
-            value={timer}
-            onChange={(e) => setTimer(Number(e.target.value))}
-          >
-            <option value={30}>30 seconds</option>
-            <option value={60}>60 seconds</option>
-            <option value={60}>60 seconds</option>
-          </select>
-          <span>{question.length}/100</span>
-        </div>
+        <span>{question.length}/100</span>
       </div>
 
       <div className="options-section">
