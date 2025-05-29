@@ -29,10 +29,7 @@ const StudentName = () => {
       const createdStudent = response.data;
 
       // Store backend-generated student ID (important for kick-out detection)
-      sessionStorage.setItem(
-        "studentId",
-        createdStudent._id || createdStudent.sessionId || sessionId
-      );
+      sessionStorage.setItem("studentId", createdStudent._id);
       sessionStorage.setItem("studentName", trimmedName);
 
       navigate("/poll-student-current");

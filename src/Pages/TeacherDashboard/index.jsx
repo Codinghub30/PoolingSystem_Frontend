@@ -103,9 +103,23 @@ const TeacherDashboard = () => {
       </div>
 
       <div className="options-section">
-        <label>Edit Options</label>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "0.8rem",
+            alignItems: "center",
+          }}
+        >
+          <label>Edit Options</label>
+          <label>Is it correct?</label>
+        </div>
         {options.map((item, idx) => (
-          <div className="option-row" key={idx}>
+          <div
+            className="option-row"
+            key={idx}
+            style={{ backgroundColor: "white" }}
+          >
             <span className="option-number">{idx + 1}</span>
             <input
               type="text"

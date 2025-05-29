@@ -80,6 +80,7 @@ const PollResultWithChats = () => {
         marginTop: "2rem",
         display: "flex",
         alignItems: "end",
+        marginLeft: "-6rem",
         flexDirection: "column",
       }}
     >
@@ -91,7 +92,12 @@ const PollResultWithChats = () => {
         👁️ View Poll history
       </button>
       <div className="poll-result-container">
-        <h3 className="poll-title">Question</h3>
+        <h3
+          className="poll-title"
+          style={{ marginLeft: "-18rem", marginBottom: "2rem" }}
+        >
+          Question
+        </h3>
         {!poll ? (
           <p>Loading poll...</p>
         ) : (
@@ -128,7 +134,7 @@ const PollResultWithChats = () => {
 
         <button
           className="ask-new-btn"
-          style={{ marginRight: "-2rem" }}
+          style={{ marginRight: "-6rem" }}
           onClick={() => navigate("/teacher-panel")}
         >
           + Ask a new question

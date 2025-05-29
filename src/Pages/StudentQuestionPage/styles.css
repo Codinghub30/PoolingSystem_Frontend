@@ -41,6 +41,7 @@
   overflow: hidden;
   box-shadow: 0 0 10px rgb(114 105 230 / 0.15);
   padding: 0rem;
+  width: 480px;
 }
 
 .question-header {

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import axiosInstance from "../../api/apiConfig";
 
 const PollHistory = () => {
@@ -24,8 +23,16 @@ const PollHistory = () => {
   };
 
   return (
-    <div style={{ padding: "20px", margin: "auto", width: "350px" }}>
-      <h2>
+    <div
+      style={{
+        padding: "20px",
+        margin: "auto",
+        maxWidth: 700,
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        width: "520px",
+      }}
+    >
+      <h2 style={{ marginBottom: 30, fontWeight: "600" }}>
         View <b>Poll History</b>
       </h2>
 
@@ -38,20 +45,27 @@ const PollHistory = () => {
           <div
             key={poll._id}
             style={{
-              marginBottom: "2rem",
-              border: "1px solid #ccc",
+              marginBottom: "2.5rem",
+              border: "1px solid #7b81f7",
               borderRadius: 8,
-              padding: 15,
+              padding: 20,
+              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
             }}
           >
-            <h4>Question {i + 1}</h4>
+            <h4 style={{ marginBottom: 10, fontWeight: "600" }}>
+              Question {i + 1}
+            </h4>
+
             <div
               style={{
-                background: "#666",
+                background: "linear-gradient(90deg, #666666 0%, #333333 100%)",
                 color: "white",
-                padding: "10px",
-                borderRadius: "6px",
-                marginBottom: "12px",
+                padding: "12px 15px",
+                borderRadius: "6px 6px 0 0",
+                fontWeight: "600",
+                fontSize: 16,
+                marginBottom: 20,
+                userSelect: "none",
               }}
             >
               {poll.question}
@@ -59,8 +73,7 @@ const PollHistory = () => {
 
             <div>
               {poll.options.map((option, idx) => {
-                const pct = getPercentage(option.votes, totalVotes);
-
+                const pct = Number(getPercentage(option.votes, totalVotes));
                 return (
                   <div
                     key={option._id}
@@ -68,33 +81,55 @@ const PollHistory = () => {
                       display: "flex",
                       alignItems: "center",
                       marginBottom: 8,
-                      background: idx % 2 === 0 ? "#f5f5f5" : "#ffffff",
-                      borderRadius: 4,
-                      padding: "6px 10px",
-                      border: "1px solid #ccc",
+                      borderRadius: 6,
+                      overflow: "hidden",
+                      border: "1px solid #ddd",
+                      fontSize: 14,
+                      cursor: "default",
+                      backgroundColor: idx % 2 === 0 ? "#f9f9ff" : "#ffffff",
+                      userSelect: "none",
+                      position: "relative",
+                      height: 36,
                     }}
                   >
+                    {/* Progress bar colored portion */}
                     <div
                       style={{
-                        flex: pct,
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: pct + "%",
                         backgroundColor: "#7b81f7",
-                        height: 25,
-                        borderRadius: "4px 0 0 4px",
-                        display: pct === 0 ? "none" : "block",
-                        color: "white",
-                        textAlign: "right",
-                        paddingRight: 8,
-                        lineHeight: "25px",
-                        fontWeight: "600",
-                        fontSize: 14,
+                        borderRadius: "6px 0 0 6px",
+                        transition: "width 0.3s ease",
                       }}
-                    >
-                      {pct > 0 && pct + "%"}
-                    </div>
+                    ></div>
+
+                    {/* Option text portion */}
                     <div
-                      style={{ flex: 100 - pct, paddingLeft: 10, fontSize: 14 }}
+                      style={{
+                        position: "relative",
+                        paddingLeft: 15,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        color: pct > 50 ? "white" : "#333", // Better contrast on bar
+                        fontWeight: "600",
+                        flexGrow: 1,
+                        zIndex: 1,
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        paddingRight: 12,
+                      }}
+                      title={option.text}
                     >
-                      {idx + 1}. {option.text}
+                      <span>
+                        {idx + 1}. {option.text}
+                      </span>
+                      <span>{pct > 0 ? pct + "%" : ""}</span>
                     </div>
                   </div>
                 );

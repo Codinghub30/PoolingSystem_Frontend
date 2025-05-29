@@ -64,6 +64,7 @@ select {
   align-items: center;
   gap: 10px;
   margin-bottom: 15px;
+  background-color: white;
 }
 
 .option-number {
